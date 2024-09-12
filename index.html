@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Webpage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header, footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1em 0;
+        }
+        main {
+            padding: 1em;
+        }
+        .inline {
+            display: inline-block;
+            vertical-align: top;
+        }
+    </style>
+    <script src="https://unpkg.com/@rive-app/canvas@2.20.0"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <header>
+        <h1 class="text-lg md:text-2xl font-bold">Welcome to My Riv Experiments Webpage</h1>
+    </header>
+    <main>
+
+        <canvas id="canvas3" width="500" height="500"></canvas>
+
+        <canvas id="canvas" width="500" height="500"></canvas>
+
+        <div class="inline">
+            <canvas id="canvas2" width="500" height="500"></canvas>
+          </div>
+          <div class="inline">
+            <button id="idle">Start Truck</button>
+            <button id="wipers">Start Wipers</button>
+            <div id="loop">Looped Animation: TBD</div>
+          </div>
+
+       
+    </main>
+    <footer>
+        <p>&copy; 2024 Heather Nuffer</p>
+    </footer>
+    <script>
+        const r = new rive.Rive({
+            src: "https://cdn.rive.app/animations/vehicles.riv",
+            canvas: document.getElementById("canvas"),
+            autoplay: true,
+            // artboard: "Arboard", // Optional. If not supplied the default is selected
+            stateMachines: "bumpy",
+            onLoad: () => {
+              r.resizeDrawingSurfaceToCanvas();
+            },
+        });
+
+        const r3 = new rive.Rive({
+            src: "riv-file.riv",
+            canvas: document.getElementById("canvas3"),
+            autoplay: true,
+            // artboard: "Arboard", // Optional. If not supplied the default is selected
+            // stateMachines: "bumpy",
+            onLoad: () => {
+              r3.resizeDrawingSurfaceToCanvas();
+            },
+        });
+
+        const idleButton = document.getElementById("idle");
+        const wipersButton = document.getElementById("wipers");
+        const loopDiv = document.getElementById("loop");
+
+        const truck = new rive.Rive({
+        src: "https://cdn.rive.app/animations/vehicles.riv",
+        artboard: "Jeep",
+        canvas: document.getElementById("canvas2"),
+        layout: new rive.Layout({ fit: "fill" }),
+        // Listen for play events to update button text
+        onPlay: (event) => {
+            const names = event.data;
+            names.forEach((name) => {
+            if (name === "idle") {
+                idleButton.innerHTML = "Stop Truck";
+            } else if (name === "windshield_wipers") {
+                wipersButton.innerHTML = "Stop Wipers";
+            }
+            });
+        },
+        // Listen for pause events to update button text
+        onStop: (event) => {
+            const names = event.data;
+            names.forEach((name) => {
+            if (name === "idle") {
+                idleButton.innerHTML = "Start Truck";
+            } else if (name === "windshield_wipers") {
+                wipersButton.innerHTML = "Start Wipers";
+            }
+            });
+        },
+        onLoop: (event) => {
+            loopDiv.innerHTML = `Looped Animation: ${event.data.animation}`;
+        }
+        });
+
+        idleButton.onclick = (_) =>
+        truck.playingAnimationNames.includes("idle")
+            ? truck.pause("idle")
+            : truck.play("idle");
+
+        wipersButton.onclick = (_) =>
+        truck.playingAnimationNames.includes("windshield_wipers")
+            ? truck.stop("windshield_wipers")
+            : truck.play("windshield_wipers");
+        </script>
+</body>
+</html>
